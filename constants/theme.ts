@@ -5,24 +5,24 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#8B6914'; // warm antique gold
+const tintColorDark = '#C9A84C';  // polished gold
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    text: '#2C1F14',           // deep espresso brown — rich, readable
+    background: '#F9F3EC',     // your warm cream base
+    tint: tintColorLight,      // antique gold for interactive elements
+    icon: '#9C7D5A',           // warm caramel — softer than pure grey
+    tabIconDefault: '#9C7D5A', // caramel for inactive tabs
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    text: '#F0E6D6',           // warm parchment — cream instead of cold white
+    background: '#1C1510',     // deep espresso — warm dark, not blue-black
+    tint: tintColorDark,       // polished gold pops on dark
+    icon: '#7A6248',           // muted bronze for inactive icons
+    tabIconDefault: '#7A6248', // muted bronze
     tabIconSelected: tintColorDark,
   },
 };
