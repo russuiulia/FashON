@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function Register() {
   return (
@@ -19,50 +21,30 @@ export default function Register() {
 
         {/* Form */}
         <View className="gap-5">
-          <View className="gap-2">
-            <Text className="text-xs font-semibold tracking-widest uppercase text-caramel dark:text-bronze">
-              Full Name
-            </Text>
-            <TextInput
-              placeholder="Jane Doe"
-              autoCapitalize="words"
-              className="border border-beige-100 dark:border-espresso-800 rounded-xl px-4 py-4 text-beige-900 dark:text-espresso-200"
-            />
-          </View>
+          <Input
+            label="Full Name"
+            placeholder="Jane Doe"
+            autoCapitalize="words"
+          />
 
-          <View className="gap-2">
-            <Text className="text-xs font-semibold tracking-widest uppercase text-caramel dark:text-bronze">
-              Email
-            </Text>
-            <TextInput
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              className="border border-beige-100 dark:border-espresso-800 rounded-xl px-4 py-4 text-beige-900 dark:text-espresso-200"
-            />
-          </View>
+          <Input
+            label="Email"
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-          <View className="gap-2">
-            <Text className="text-xs font-semibold tracking-widest uppercase text-caramel dark:text-bronze">
-              Password
-            </Text>
-            <TextInput
-              placeholder="••••••••"
-              secureTextEntry
-              className="border border-beige-100 dark:border-espresso-800 rounded-xl px-4 py-4 text-beige-900 dark:text-espresso-200"
-            />
-          </View>
+          <Input
+            label="Password"
+            placeholder="••••••••"
+            secureTextEntry
+          />
 
-          <View className="gap-2">
-            <Text className="text-xs font-semibold tracking-widest uppercase text-caramel dark:text-bronze">
-              Confirm Password
-            </Text>
-            <TextInput
-              placeholder="••••••••"
-              secureTextEntry
-              className="border border-beige-100 dark:border-espresso-800 rounded-xl px-4 py-4 text-beige-900 dark:text-espresso-200"
-            />
-          </View>
+          <Input
+            label="Confirm Password"
+            placeholder="••••••••"
+            secureTextEntry
+          />
         </View>
 
         {/* Terms */}
@@ -78,13 +60,7 @@ export default function Register() {
         </Text>
 
         {/* Actions */}
-        <View className="gap-4">
-          <TouchableOpacity className="bg-gold-light dark:bg-gold-dark rounded-xl py-4 items-center">
-            <Text className="text-white font-bold tracking-widest">
-              Create Account
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <Button variant="filled" label="Create Account" />
 
         {/* Footer */}
         <View className="flex-row justify-center">
