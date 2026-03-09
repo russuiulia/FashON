@@ -1,8 +1,8 @@
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { router } from 'expo-router';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 
 export default function Register() {
   return (
@@ -60,7 +60,7 @@ export default function Register() {
         </Text>
 
         {/* Actions */}
-        <Button variant="filled" label="Create Account" />
+        <Button variant="filled" label="Create Account" onPress={() => router.push('/auth/create-profile')} />
 
         {/* Footer */}
         <View className="flex-row justify-center">
