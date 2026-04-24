@@ -1,5 +1,9 @@
+import { useAuth } from '@/context/AuthContext';
+import { useUserProfile } from '@/hooks/useUserProfiles';
+import { auth } from '@/lib/firebase';
 import { router } from 'expo-router';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { signOut } from 'firebase/auth';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function ProfileRow({ label, value, onPress }: { label: string; value: string; onPress?: () => void }) {
@@ -21,14 +25,29 @@ function ProfileRow({ label, value, onPress }: { label: string; value: string; o
 }
 
 export default function Profile() {
-  // Replace with real user data from store/context
-  const user = {
-    name: 'Jane Doe',
-    email: 'jane@example.com',
-    age: '26',
-    gender: 'Female',
-    style: 'Minimalist',
-    location: 'Paris, France',
+  const { user } = useAuth();
+  const { profile, loading } = useUserProfile();
+  const displayName = user?.displayName ?? 'No name set';
+  const email = user?.email ?? '';
+  const initials = displayName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleSignOut = async () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          await signOut(auth);
+          // AuthContext listener will detect the change and redirect automatically
+        },
+      },
+    ]);
   };
 
   return (
@@ -40,13 +59,19 @@ export default function Profile() {
         {/* Avatar */}
         <View className="items-center gap-3 mb-10">
           <View className="w-20 h-20 rounded-full bg-beige-100 dark:bg-espresso-800 items-center justify-center">
-            <Text className="text-4xl">🧍</Text>
+            {initials ? (
+              <Text className="text-2xl font-bold text-gold-light dark:text-gold-dark">
+                {initials}
+              </Text>
+            ) : (
+              <Text className="text-4xl">🧍</Text>
+            )}
           </View>
           <View className="items-center gap-0.5">
             <Text className="text-lg font-bold text-beige-900 dark:text-espresso-100">
-              {user.name}
+              {displayName}
             </Text>
-            <Text className="text-sm text-caramel dark:text-bronze">{user.email}</Text>
+            <Text className="text-sm text-caramel dark:text-bronze">{email}</Text>
           </View>
         </View>
 
@@ -55,10 +80,10 @@ export default function Profile() {
           Profile
         </Text>
         <View className="mb-8">
-          <ProfileRow label="Age" value={user.age} /* onPress={() => router.push('/profile/edit')} */ />
-          <ProfileRow label="Gender" value={user.gender}  /*onPress={() => router.push('/profile/edit')} */ />
-          <ProfileRow label="Style" value={user.style} /* onPress={() => router.push('/profile/edit')}*/  />
-          <ProfileRow label="Location" value={user.location} /* onPress={() => router.push('/profile/edit')}*/  />
+          <ProfileRow label="Age" value={profile?.age || '—'} onPress={() => router.push('/profile/edit')} />
+          <ProfileRow label="Gender" value={profile?.gender || '—'} onPress={() => router.push('/profile/edit')} />
+          <ProfileRow label="Style" value={profile?.style || '—'} onPress={() => router.push('/profile/edit')} />
+          <ProfileRow label="Location" value={profile?.location || '—'} onPress={() => router.push('/profile/edit')} />
         </View>
 
         {/* Stats */}
@@ -85,7 +110,7 @@ export default function Profile() {
 
         {/* Sign out */}
         <TouchableOpacity
-          onPress={() => router.replace('/auth/login')}
+          onPress={handleSignOut}
           className="border border-beige-100 dark:border-espresso-800 rounded-xl py-4 items-center"
         >
           <Text className="text-sm font-semibold text-caramel dark:text-bronze">Sign Out</Text>
