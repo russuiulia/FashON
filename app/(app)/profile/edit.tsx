@@ -2,25 +2,40 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useUserProfile } from '@/hooks/useUserProfiles';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EditProfile() {
   const { profile, updateProfile } = useUserProfile();
 
-  const [age, setAge] = useState(profile?.age ?? '');
-  const [gender, setGender] = useState(profile?.gender ?? '');
-  const [style, setStyle] = useState(profile?.style ?? '');
-  const [location, setLocation] = useState(profile?.location ?? '');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [style, setStyle] = useState('');
+  const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setAge(profile.age ?? '');
+      setGender(profile.gender ?? '');
+      setStyle(profile.style ?? '');
+      setLocation(profile.location ?? '');
+    }
+  }, [profile]);
 
   const handleSave = async () => {
     try {
       setLoading(true);
       await updateProfile({ age, gender, style, location });
-      router.back();
+      console.log('Saved, navigating back...');
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/profile');
+      }
     } catch (error: any) {
+      console.log('Save error:', error.code, error.message);
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
@@ -29,7 +44,10 @@ export default function EditProfile() {
 
   return (
     <SafeAreaView className="flex-1 bg-beige-50 dark:bg-espresso-900">
-      <ScrollView contentContainerClassName="px-8 pt-8 pb-12 gap-5" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerClassName="px-8 pt-8 pb-12 gap-5"
+        showsVerticalScrollIndicator={false}
+      >
         <Text className="text-2xl font-bold text-beige-900 dark:text-espresso-100 mb-4">
           Edit Profile
         </Text>

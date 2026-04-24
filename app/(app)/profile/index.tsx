@@ -3,7 +3,7 @@ import { useUserProfile } from '@/hooks/useUserProfiles';
 import { auth } from '@/lib/firebase';
 import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function ProfileRow({ label, value, onPress }: { label: string; value: string; onPress?: () => void }) {
@@ -27,6 +27,7 @@ function ProfileRow({ label, value, onPress }: { label: string; value: string; o
 export default function Profile() {
   const { user } = useAuth();
   const { profile, loading } = useUserProfile();
+
   const displayName = user?.displayName ?? 'No name set';
   const email = user?.email ?? '';
   const initials = displayName
@@ -37,18 +38,21 @@ export default function Profile() {
     .slice(0, 2);
 
   const handleSignOut = async () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign Out',
-        style: 'destructive',
-        onPress: async () => {
-          await signOut(auth);
-          // AuthContext listener will detect the change and redirect automatically
-        },
-      },
-    ]);
+    try {
+      await signOut(auth);
+      router.replace('/auth/login');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 bg-beige-50 dark:bg-espresso-900 items-center justify-center">
+        <Text className="text-caramel dark:text-bronze">Loading...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-beige-50 dark:bg-espresso-900">
@@ -76,14 +80,21 @@ export default function Profile() {
         </View>
 
         {/* Profile info */}
-        <Text className="text-xs font-semibold tracking-widest uppercase text-caramel dark:text-bronze mb-2">
-          Profile
-        </Text>
+        <View className="flex-row justify-between items-center mb-2">
+          <Text className="text-xs font-semibold tracking-widest uppercase text-caramel dark:text-bronze">
+            Profile
+          </Text>
+          <TouchableOpacity onPress={() => router.push('/profile/edit')}>
+            <Text className="text-xs font-semibold text-gold-light dark:text-gold-dark">
+              Edit
+            </Text>
+          </TouchableOpacity>
+        </View>
         <View className="mb-8">
-          <ProfileRow label="Age" value={profile?.age || '—'} onPress={() => router.push('/profile/edit')} />
-          <ProfileRow label="Gender" value={profile?.gender || '—'} onPress={() => router.push('/profile/edit')} />
-          <ProfileRow label="Style" value={profile?.style || '—'} onPress={() => router.push('/profile/edit')} />
-          <ProfileRow label="Location" value={profile?.location || '—'} onPress={() => router.push('/profile/edit')} />
+          <ProfileRow label="Age" value={profile?.age || '—'} />
+          <ProfileRow label="Gender" value={profile?.gender || '—'} />
+          <ProfileRow label="Style" value={profile?.style || '—'} />
+          <ProfileRow label="Location" value={profile?.location || '—'} />
         </View>
 
         {/* Stats */}

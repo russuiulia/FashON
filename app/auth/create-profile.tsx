@@ -2,10 +2,12 @@ import { Button } from '@/components/ui/Button';
 import { GenderPicker } from '@/components/ui/GenderPicker';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { auth, db } from '@/lib/firebase';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
+import { doc, setDoc } from 'firebase/firestore';
 import { useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STYLE_OPTIONS = [
@@ -48,7 +50,30 @@ export default function CreateProfile() {
       setLocLoading(false);
     }
   }
+  async function handleContinue() {
+    if (!age || !gender || !style) {
+      Alert.alert('Missing fields', 'Please fill in age, gender, and style.');
+      return;
+    }
 
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('No user logged in');
+
+      await setDoc(doc(db, 'users', user.uid), {
+        age,
+        gender,
+        style,
+        location: location?.city ?? '',
+        coords: location?.coords ?? '',
+      }, { merge: true }); // merge: true so we don't overwrite name/email from register
+
+      router.push('/home');
+    } catch (error: any) {
+      console.log('Profile save error:', error.code, error.message);
+      Alert.alert('Error', error.message);
+    }
+  }
   return (
     <SafeAreaView className="flex-1 bg-beige-50 dark:bg-espresso-900">
       <View className="flex-1 px-8 justify-center gap-10">
@@ -146,7 +171,7 @@ export default function CreateProfile() {
         <Button
           variant="filled"
           label="Continue"
-          onPress={() => router.push('/home')}
+          onPress={handleContinue}
         />
 
       </View>

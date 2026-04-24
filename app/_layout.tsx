@@ -5,9 +5,10 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Colors } from '@/constants/theme';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Stack } from 'expo-router';
-import { AuthProvider } from '@/context/AuthContext';
+import { router, Stack } from 'expo-router';
+import { useEffect } from 'react';
 
 const LightTheme = {
   ...DefaultTheme,
@@ -37,6 +38,12 @@ const CustomDarkTheme = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const { user, loading } = useAuth();
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/auth/login');
+    }
+  }, [user, loading]);
   return (
     <SafeAreaProvider>
       <AuthProvider>

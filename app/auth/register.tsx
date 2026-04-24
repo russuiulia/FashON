@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { auth, db } from '@/lib/firebase';
 import { router } from 'expo-router';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Register() {
@@ -51,6 +51,9 @@ export default function Register() {
 
       router.push('/auth/create-profile');
     } catch (error: any) {
+      console.log("ERROR CODE:", error.code);
+      console.log("ERROR MSG:", error.message);
+      console.log("FULL ERROR:", error);
       Alert.alert('Registration failed', error.message);
     } finally {
       setLoading(false);
