@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
+import { UserProfileProvider } from '@/context/UserProfileContext';
 
 const LightTheme = {
   ...DefaultTheme,
@@ -47,10 +48,12 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : LightTheme}>
-          <Stack screenOptions={{ headerShown: false }} />
-        </ThemeProvider>
+        <UserProfileProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : LightTheme}>
+            <Stack screenOptions={{ headerShown: false }} />
+          </ThemeProvider>
+        </UserProfileProvider>
       </AuthProvider>
-    </SafeAreaProvider>
+    </SafeAreaProvider >
   );
 }

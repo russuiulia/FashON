@@ -4,33 +4,66 @@ import { auth } from '@/lib/firebase';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <Text className="text-red-500 text-xs mt-1">{message}</Text>;
+}
+
+function validate(email: string, password: string) {
+  const errors: { email?: string; password?: string } = {};
+  if (!email) errors.email = 'Email is required.';
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email.';
+  if (!password) errors.password = 'Password is required.';
+  else if (password.length < 6) errors.password = 'Password must be at least 6 characters.';
+  return errors;
+}
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [submitError, setSubmitError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const isDisabled = loading || !email || !password;
+
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Missing fields', 'Please enter your email and password.');
+    const validationErrors = validate(email, password);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     try {
       setLoading(true);
+      setSubmitError('');
+      setErrors({});
       await signInWithEmailAndPassword(auth, email, password);
       router.replace('/home');
     } catch (error: any) {
-      Alert.alert('Login failed', error.message);
+      const msg =
+        error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password'
+          ? 'Incorrect email or password.'
+          : error.code === 'auth/user-not-found'
+            ? 'No account found with this email.'
+            : error.code === 'auth/too-many-requests'
+              ? 'Too many attempts. Try again later.'
+              : 'Something went wrong. Please try again.';
+      setSubmitError(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgotPassword = () => {
-    // router.push('/auth/forgot-password');
+  const handleChange = (field: 'email' | 'password', value: string) => {
+    if (field === 'email') setEmail(value);
+    else setPassword(value);
+    // Clear the error for the field as the user types
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (submitError) setSubmitError('');
   };
 
   return (
@@ -47,36 +80,48 @@ export default function Login() {
         </View>
 
         <View className="gap-5">
-          <Input
-            label="Email"
-            placeholder="you@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
+          <View>
+            <Input
+              label="Email"
+              placeholder="you@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={(v) => handleChange('email', v)}
+              error={!!errors.email}
+            />
+            <FieldError message={errors.email} />
+          </View>
 
-          <Input
-            label="Password"
-            placeholder="••••••••"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+          <View>
+            <Input
+              label="Password"
+              placeholder="••••••••"
+              secureTextEntry
+              value={password}
+              onChangeText={(v) => handleChange('password', v)}
+              error={!!errors.password}
+            />
+            <FieldError message={errors.password} />
+          </View>
 
-          <TouchableOpacity className="self-end" onPress={handleForgotPassword}>
-            <Text className="text-sm text-gold-light dark:text-gold-dark">
-              Forgot password?
-            </Text>
+          <TouchableOpacity className="self-end" onPress={() => { }}>
+            <Text className="text-sm text-gold-light dark:text-gold-dark">Forgot password?</Text>
           </TouchableOpacity>
         </View>
+
+        {submitError ? (
+          <View className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+            <Text className="text-red-500 text-sm text-center">{submitError}</Text>
+          </View>
+        ) : null}
 
         <View className="gap-4">
           <Button
             variant="filled"
             label={loading ? 'Signing in...' : 'Sign In'}
             onPress={handleLogin}
-            disabled={loading}
+            disabled={isDisabled}
           />
 
           <View className="flex-row items-center gap-3">
@@ -84,8 +129,6 @@ export default function Login() {
             <Text className="text-caramel dark:text-bronze text-sm">or</Text>
             <View className="flex-1 h-px bg-beige-100 dark:bg-espresso-800" />
           </View>
-
-          {/* <Button variant="outlined" label="Continue with Google" onPress={() => { }} /> */}
         </View>
 
         <View className="flex-row justify-center">

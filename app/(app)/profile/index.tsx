@@ -1,5 +1,5 @@
 import { useAuth } from '@/context/AuthContext';
-import { useUserProfile } from '@/hooks/useUserProfiles';
+import { useUserProfile } from '@/context/UserProfileContext';
 import { auth } from '@/lib/firebase';
 import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
